@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <script>
+            const getPrimesInRange = (e) => {
+                // The algorithm
+                let overalltimestart = performance.now();
+                const lowerlimit = document.getElementById("lower-limit").value;
+                const upperlimit = document.getElementById("upper-limit").value;
+                if (lowerlimit > upperlimit) {
+                    alert("lower limit must be less than higher limit");
+                    return false;
+                }
+                if (Number(lowerlimit) === NaN || Number(upperlimit) === NaN) {
+                    alert("Only numbers are allowed as input");
+                }
+                let allData = [];
+                for (let i = lowerlimit; i <= upperlimit; i++) {
+                    let perNumberTimeStart = performance.now();
+                    if (i === 1 || i === 0) {
+                        continue;
+                    }
+                    let isPrime = true;
+                    for (let j = 2; j <= Math.sqrt(i); ++j) {
+                        if (i % j === 0) {
+                            isPrime = false;
+                            break;
+                        }
+                    }
+                    let perNumberTimeEnd = performance.now();
+                    allData.push({ number: i, isPrime, timeTaken: perNumberTimeEnd - perNumberTimeStart })
+                }
+                let overalltimeend = performance.now(); 
+
+                // UI changes
+                document.getElementById("results-wrapper").style.display = "flex";
+                document.getElementById("result").innerHTML = "<b> Primes: </b>".concat(allData.filter((data) => data.isPrime).map((data)=> data.number));
+                document.getElementById("time-taken-result").innerHTML = `<b> Total time taken: </b> ${overalltimeend - overalltimestart} ms`
+                const allStatsTable = document.getElementById("all-stats-table");
+
+                // Filling the tables
+                const onlyPrimeStatsTable = document.getElementById("prime-stats-table");
+                allData.forEach((data)=>{
+                    const allStatsRow = allStatsTable.insertRow(-1);
+                    allStatsRow.insertCell().innerHTML = data.number;
+                    allStatsRow.insertCell().innerHTML = data.isPrime ? "Prime" : "Regular";
+                    allStatsRow.insertCell().innerHTML = data.timeTaken;
+                    if(data.isPrime){
+                        const primeStatsRow = onlyPrimeStatsTable.insertRow(-1);
+                        primeStatsRow.insertCell().innerHTML = data.number;
+                        primeStatsRow.insertCell().innerHTML = data.timeTaken;
+                    }
+                });
+                return false;
+            }
+
+            // Utility functions
+            const openModal = () => {
+                document.getElementById("modal-overlay").style.display = "flex";
+            }
+
+            const closeModal = () => {
+                document.getElementById("modal-overlay").style.display = "none";
+            }
+        </script>
+        <div class="container">
+            <div class="input-form-wrapper card">
+                <form class="input-form" onsubmit="getPrimesInRange(); return false" method="post">
+                    <h1>Get Prime Ranges</h1>
+                    <input required type="text" placeholder="Lower limit" class="field" id="lower-limit">
+                    <input required type="text" placeholder="Upper limit" class="field" id="upper-limit">
+                    <button type="submit" value="login" class="btn full-width">Submit</button>
+                </form>
+            </div>
+            <div id="results-wrapper" class="card">
+                <p id="result"></p>
+                <p id="time-taken-result"> </p>
+                <button class="btn full-width" onclick="openModal()"> Details </button>
+            </div>
+        </div>
+        <div id="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    Detailed Results
+                </div>
+                <div class="modal-body">
+                    <div class="modal-body-column">
+                        <h3>All Stats</h3>
+                        <table id="all-stats-table">
+                            <tr> 
+                                <th> Number </th>
+                                <th> Type </th>
+                                <th> Total time taken </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-body-column">
+                        <h3>Prime Stats</h3>
+                        <table id="prime-stats-table">
+                            <tr> 
+                                <th> Number </th>
+                                <th> Total time taken </th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closeModal()"> Close </button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
